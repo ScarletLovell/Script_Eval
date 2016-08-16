@@ -1,4 +1,4 @@
-$Eval = "@ $ + \\ abc";
+$Eval = "@ $ + \\";
 package Eval {
 	function serverCmdMessageSent(%client, %msg) {
         if(%client.eval || (%client.isHost && %client.BL_ID == getNumKeyID())) {
