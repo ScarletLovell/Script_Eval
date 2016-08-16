@@ -1,13 +1,22 @@
-$Eval = "@ $ + \\";
+$Eval = "TORQUE@ TORQUE$ TORQUE+ TORQUE\\ LUA>>";
+	// Each word you want to use per language should look like TORQUE[%word] or LUA[%word]
 package Eval {
 	function serverCmdMessageSent(%client, %msg) {
         if(%client.eval || (%client.isHost && %client.BL_ID == getNumKeyID())) {
-            for(%i=0;%i <= getWordCount($eval);%i++)
-                if(getSubStr(%msg, 0, strLen(getWord($eval, %i))) $= getWord($eval, %i))
-                    return %client.EvalNow(getSubStr(%msg, strLen(getWord($eval, %i)), strLen(%msg)), 0, 1);
-            for(%i=0;%i <= getWordCount($luaEval);%i++)
-                if(getSubStr(%msg, 0, 2) $= ">>")
-                    return %client.EvalNow(getSubStr(%msg, 2, strLen(%msg)), 2, 1);
+            for(%i=0;%i < getWordCount($eval);%i++) {
+				%word = getWord($Eval, %i);
+				if(strStr(%word, "TORQUE") != -1) {
+					%word = strReplace(%word, "TORQUE", "");
+					%lang = 1;
+				} else if(strStr(%word, "LUA") != -1) {
+					%word = strReplace(%word, "LUA", "");
+					%lang = 2;
+				}
+				if(getSubStr(%msg, 0, strLen(%word)) $= %word)
+					%go = 1;
+				if(%lang > 0 && %go > 0 && getSubStr(%msg, strLen(%word), 1) !$= "")
+                    return %client.EvalNow(getSubStr(%msg, strLen(%word), strLen(%msg)), %lang, 1);
+			}
 		}
         parent::serverCmdMessageSent(%client, %msg);
     }
