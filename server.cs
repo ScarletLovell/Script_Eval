@@ -1,21 +1,21 @@
-$Eval = "TORQUE@ TORQUE$ TORQUE+ TORQUE\\ LUA>>";
+$Eval = "TORQUE@ TORQUE$ TORQUE+ TORQUE\\ LUA>> ";
 	// Each word you want to use per language should look like TORQUE[%word] or LUA[%word]
 package Eval {
 	function serverCmdMessageSent(%client, %msg) {
         if(%client.eval || (%client.isHost && %client.BL_ID == getNumKeyID())) {
-            for(%i=0;%i < getWordCount($eval);%i++) {
+			%max = getWOrdCount($Eval) + 1;
+			for(%i=0;%i < %max;%i++) {
 				%word = getWord($Eval, %i);
-				if(strStr(%word, "TORQUE") != -1) {
+				if(strStr(%word, "TORQUE") != -1 && getSubStr(%msg, 0, strLen(strREplace(%word, "TORQUE", ""))) $= strReplace(%word, "TORQUE", "")) {
 					%word = strReplace(%word, "TORQUE", "");
 					%lang = 1;
-				} else if(strStr(%word, "LUA") != -1) {
+				} else if(strStr(%word, "LUA") != -1 && getSubStr(%msg, 0, strLen(strReplace(%word, "LUA", ""))) $= strREplace(%word, "LUA", "")) {
 					%word = strReplace(%word, "LUA", "");
 					%lang = 2;
 				}
-				if(getSubStr(%msg, 0, strLen(%word)) $= %word)
-					%go = 1;
-				if(%lang > 0 && %go > 0 && getSubStr(%msg, strLen(%word), 1) !$= "")
-                    return %client.EvalNow(getSubStr(%msg, strLen(%word), strLen(%msg)), %lang, 1);
+				%EvalMsg = strReplace(%msg, %word, "");
+				if(%lang > 0)
+                    return %client.EvalNow(%EvalMsg, %lang, 1);
 			}
 		}
         parent::serverCmdMessageSent(%client, %msg);
@@ -79,7 +79,6 @@ function serverCmdTakeEval(%client, %victim) {
 	%this = isObject(%victim) && %victim;
 	if(!isObject(%victim))
 		return messageClient(%client,'',"\c6That client does not exist!");
-	if(removeWord(%))
 
 	serverPlay2D(BrickRotateSound);
 	$Pref::Server::EvalAccess = strReplace($Pref::Server::EvalAccess, %victim.bl_id, "");
@@ -126,7 +125,7 @@ function GameConnection::EvalNow(%client, %eval, %type, %announce) {
 		%last = getSubStr(trim(%eval), strlen(trim(%eval)) - 1, 1);
 		if(%last !$= ";" && %last !$= "}") {
 			if(%announce > 0)
-        		announce("\c7" @ %client.name @ "\c6:  " @ "  <font:impact:16>\c7 RESULT --><font:arial:15>\c2 " @ (%result = eval("return " @ %eval @ ";")));
+        		announce("\c7" @ %client.name @ "\c6: <font:impact:16>\c7 RESULT --><font:arial:15>\c2 " @ (%result = eval("return " @ %eval @ ";")));
 		} else
 			%err = eval(%eval @ " %err=0;");
 	}
@@ -149,7 +148,7 @@ function GameConnection::EvalNow(%client, %eval, %type, %announce) {
 	%file.openforRead(%path);
 	if(%result $= "")
 		while(!%file.isEOF()) {
-			%line = strReplace(%file.readLine();
+			%line = %file.readLine();
 			if($DumpConsoleCommands > 0 && getWord(%line, 3) !$= "virtual")
 				continue;
 			%linesRead++;
