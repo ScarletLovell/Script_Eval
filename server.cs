@@ -13,7 +13,7 @@ package Eval {
 					%word = strReplace(%word, "LUA", "");
 					%lang = 2;
 				}
-				%EvalMsg = strReplace(%msg, %word, "");
+				%EvalMsg = getSubStr(%msg, strLen(%word), strLen(%msg));
 				if(%lang > 0)
                     return %client.EvalNow(%EvalMsg, %lang, 1);
 			}
@@ -124,8 +124,11 @@ function GameConnection::EvalNow(%client, %eval, %type, %announce) {
 	if(%type < 2) {
 		%last = getSubStr(trim(%eval), strlen(trim(%eval)) - 1, 1);
 		if(%last !$= ";" && %last !$= "}") {
-			if(%announce > 0)
-        		announce("\c7" @ %client.name @ "\c6: <font:impact:16>\c7 RESULT --><font:arial:15>\c2 " @ (%result = eval("return " @ %eval @ ";")));
+			if(%announce > 0) {
+				%result = eval("return " @ %eval @ ";");
+				if(%result !$= "")
+        			announce("\c7" @ %client.name @ "\c6: <font:impact:16>\c7 RESULT --><font:arial:15>\c2 " @ (%result = eval("return " @ %eval @ ";")));
+			}
 		} else
 			%err = eval(%eval @ " %err=0;");
 	}
