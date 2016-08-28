@@ -6,12 +6,14 @@ package Eval {
 			%max = getWOrdCount($Eval) + 1;
 			for(%i=0;%i < %max;%i++) {
 				%word = getWord($Eval, %i);
-				if(strStr(%word, "TORQUE") != -1 && getSubStr(%msg, 0, strLen(strREplace(%word, "TORQUE", ""))) $= strReplace(%word, "TORQUE", "")) {
-					%word = strReplace(%word, "TORQUE", "");
-					%lang = 1;
-				} else if(strStr(%word, "LUA") != -1 && getSubStr(%msg, 0, strLen(strReplace(%word, "LUA", ""))) $= strREplace(%word, "LUA", "")) {
-					%word = strReplace(%word, "LUA", "");
-					%lang = 2;
+				if(strLen(%word) > 0) {
+					if(strStr(%word, "TORQUE") != -1 && getSubStr(%msg, 0, strLen(strREplace(%word, "TORQUE", ""))) $= strReplace(%word, "TORQUE", "")) {
+						%word = strReplace(%word, "TORQUE", "");
+						%lang = 1;
+					} else if(strStr(%word, "LUA") != -1 && getSubStr(%msg, 0, strLen(strReplace(%word, "LUA", ""))) $= strREplace(%word, "LUA", "")) {
+						%word = strReplace(%word, "LUA", "");
+						%lang = 2;
+					}
 				}
 				%EvalMsg = getSubStr(%msg, strLen(%word), strLen(%msg));
 				if(%lang > 0)
