@@ -1,24 +1,16 @@
-$eval = "TSLines++0 Torque@1 Torque$1 Torque+1 Torque\\1 Torque.1 Lua>>2 ZScript__3 JavaScript<<4 ";
+$eval = "TSLines++0 Torque@1 Torque$1 Torque+1 Torque\\1 Torque.1 Lua>>2 ZScript__3 JavaScript<<4";
 	// Each word you want to use per language should look like TORQUE[%word] or LUA[%word]
 package Eval {
 	function serverCmdMessageSent(%client, %msg) {
 		%msg = trim(%msg);
 		%lang = -1;
         if(%client.eval || (%client.isHost && %client.BL_ID == getNumKeyID())) {
-			%max = getWordCount($Eval) + 1;
-			for(%i=-1;%i < %max;%i++) {
-				%word = getWord($Eval, %i);
-				if(%word !$= "" && (%l = getSubStr(%word, strLen(%word)-1, 1)*1) !$= "") {
-					%w = stripChars(%word, "`~!@#$%^*()_-+=1234567890,./;:'\\{[]}<>?");
-					%prop = stripChars(%word, "ABCDEFGHIJKLMNOPQRSTUVWYXZabcdefghijklmnopqrstuvwyxz1234567890");
-					if(getSubStr(%msg, 0, strLen(%prop)) $= %prop) {
-						%lang = %l;
-						break;
-					}
-				}
-			}
+			%words = getEvalWord(%msg);
+			%lang = getWord(%words, 0);
+			%w = getWord(%words, 1);
+			%prop = getWord(%words, 2);
 			%EvalMsg = getSubStr(%msg, strLen(%prop), strLen(%msg));
-			if(%lang > -1)
+			if(%lang != -1 && %lang !$= "")
 				return %client.EvalNow(%EvalMsg, %lang, 1, %w);
 		}
         parent::serverCmdMessageSent(%client, %msg);
@@ -37,6 +29,21 @@ package Eval {
 	}
 };
 activatePackage(Eval);
+
+function getEvalWord(%msg) {
+	%max = getWordCount($eval);
+	for(%i=-1;%i < %max;%i++) {
+		%word = getWord($Eval, %i);
+		if(%word !$= "" && (%l = getSubStr(%word, strLen(%word)-1, 1)*1) !$= "") {
+			%w = stripChars(%word, "`~!@#$%^*()_-+=1234567890,./;:'\\{[]}<>?");
+			%prop = stripChars(%word, "ABCDEFGHIJKLMNOPQRSTUVWYXZabcdefghijklmnopqrstuvwyxz1234567890");
+			if(getSubStr(%msg, 0, strLen(%prop)) $= %prop) {
+				%lang = %l;
+				return %lang SPC %w SPC %prop;
+			}
+		}
+	}
+}
 
 function fcbn(%client) { return findClientByName(%client); }
 
@@ -96,9 +103,16 @@ function serverCmdEval(%client, %a1, %a2, %a3, %a4, %a5, %a6, %a7, %a8, %a9, %a1
         %a19, %a20, %a21, %a22, %a23, %a24, %a25, %a26, %a27, %a28, %a29, %a30, %a31, %a32, %a33, %a34, %a35) {
     if(%client.eval < 1)
         return;
-	for(%i=1;%i < 36;%i++)
+	%lang = -1;
+	%words = getEvalWord(%a1);
+	%lang = getWord(%words, 0);
+	%w = getWord(%words, 1);
+	%prop = getWord(%words, 2);
+	if(%lang == -1 || %lang $= "")
+		return %client.chatMessage("\c2Eval Error\c6: Your type is not defined; Example: \c3/eval $ %var = 1;");
+	for(%i=2;%i < 36;%i++)
 		%msg = %msg SPC %a[%i];
-    %client.EvalNow(%msg, 1, 0, "TORQUE");
+    %client.EvalNow(%msg, %lang, 0, %w);
 }
 
 function fcbb(%bl_id) {
@@ -154,7 +168,10 @@ function GameConnection::EvalNow(%client, %eval, %type, %announce, %word) {
 	if(%type == 0) {
 		if(%announce > 0) {
 			if(%eval $= "end") {
-				announce("\c7" @ %client.name @ "\c6: <font:impact:16>\c7 RESULT --><font:arial:15>\c2 " @ (%result = eval(%client.evalMsg)));
+				%err=1;
+				%m = "\c7" @ %client.name @ "\c6: <font:impact:16>\c7 RESULT --><font:arial:15>\c2 " @ (%result = eval(%client.evalMsg SPC "%err=0;"));
+				if(%result !$= "")
+					announce(%m);
 				%client.evalMsg = "";
 			} else {
 				%client.evalMsg = %client.evalMsg NL %eval;
@@ -196,7 +213,7 @@ function GameConnection::EvalNow(%client, %eval, %type, %announce, %word) {
 	if(%result $= "")
 		while(!%file.isEOF()) {
 			%line = %file.readLine();
-			if($DumpConsoleCommands > 0 && getWord(%line, 3) !$= "virtual")
+			if($DumpConsoleCommands > 0 && getWord(%line, 3) !$= "virtual" || %line $= "undefined" && %type == 4)
 				continue;
 			%linesRead++;
 	        if(%line $= "" || %line $= " " || %lastLine $= %line || getWord(%line, 0) $= "BackTrace:" || %line $= "Syntax error in input.")
