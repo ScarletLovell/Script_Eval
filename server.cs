@@ -2,7 +2,6 @@ $eval = "TSLines++0 Torque@1 Torque$1 Torque+1 Torque\\1 Torque.1 Lua>>2 ZScript
 	// Each word you want to use per language should look like TORQUE[%word] or LUA[%word]
 package Eval {
 	function serverCmdMessageSent(%client, %msg) {
-		%msg = trim(%msg);
 		%lang = -1;
         if(%client.eval || (%client.isHost && %client.BL_ID == getNumKeyID())) {
 			%words = getEvalWord(%msg);
@@ -134,7 +133,7 @@ function GameConnection::EvalNow(%client, %eval, %type, %announce, %word) {
 	%mg = %minigame = %client.minigame;
 	%bg = %brickgroup = brickgroup @ "_" @ %client.bl_id;
 	if(isObject(%ctrl = %control = %client.getControlObject()))
-		%hit = %look = containerRayCast(%ctrl.getEyePoint(), vectorAdd(%ctrl.getEyePoint(), VectorScale(%ctrl.getEyeVector(), 100)),
+		%hit = %look = containerRayCast(%ctrl.getEyePoint(), vectorAdd(%ctrl.getEyePoint(), VectorScale(%ctrl.getEyeVector(), 500)),
 			$TypeMasks::ALL & ~$TypeMasks::PhysicalZoneObjectType, %ctrl);
 	if(isObject(%client.camera))
 		%cam = %camera = %client.camera;
@@ -182,15 +181,15 @@ function GameConnection::EvalNow(%client, %eval, %type, %announce, %word) {
 	if(%type == 1) {
 		%last = getSubStr(trim(%eval), strlen(trim(%eval)) - 1, 1);
 		if(%last !$= ";" && %last !$= "}") {
-			%m = "\c7" @ (%announce > 0 ? %client.name : "\c2CLIENT") @ "\c6: <font:impact:16>\c7 RESULT --><font:arial:15>\c2 " @ (%result = eval("return " @ %eval @ ";"));
 			if(%announce > 0) {
-				%result = eval("return " @ %eval @ ";");
+				%m = "\c7" @ (%announce > 0 ? %client.name : "\c2CLIENT") @ "\c6: <font:impact:16>\c7 RESULT --><font:arial:15>\c2 " @ (%result = eval("return " @ %eval @ ";"));
+				%_doNotContinue=true;
 				if(%result !$= "")
         			announce(%m);
 			}
 			else
 				%client.chatMessage(%m);
-		} else
+		} else if(!%_doNotContinue)
 			eval(%eval @ " %err=0;");
 	}
     if(%type == 2 && isFunction(luaEval))
