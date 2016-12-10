@@ -138,7 +138,6 @@ function GameConnection::EvalNow(%client, %eval, %type, %announce, %word) {
 	if(isObject(%client.camera))
 		%cam = %camera = %client.camera;
 	if(isObject(%client.player)) {
-
 		%pl = %player = %client.player;
 		%vel = %velocity = %client.player.getVelocity();
 		%mount = %player.getObjectMount();
@@ -151,7 +150,8 @@ function GameConnection::EvalNow(%client, %eval, %type, %announce, %word) {
 			if((%_stPos2 = strPos(%eval, ":", %_stPos+1)) != -1)
 			 	if((%_gsb = getSubStr(%eval, %_stPos+1, %_stPos2 - %_stPos - 1)) !$= "") {
 					%_0 = %_stPos;
-					%eval = strReplace(%eval, ":" @ %_gsb @ ":", fcbn(%_gsb));
+					if(isObject(fcbn(%_gsb)))
+						%eval = strReplace(%eval, ":" @ %_gsb @ ":", fcbn(%_gsb));
 				}
 		}
 		else {
