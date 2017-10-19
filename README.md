@@ -18,16 +18,16 @@ ___
 ___
 
 ## Things that are useful in my eval.
-* Multilining. <br/>
- - ~~As of now,~~ multilining does not work right now ~~is used with `++`, and can be ended with `++end`~~
+* Multilining.
+  * ~~As of now,~~ multilining does not work right now ~~is used with `++`, and can be ended with `++end`~~
 * Mutli-script support <br/>
- - Support for all custom languages.
+  * Support for all custom languages.
 * Customization <br/>
- - It's nice to have control over what you do in ***your*** game. this is how you want it to be.
+  * It's nice to have control over what you do in ***your*** game. this is how you want it to be.
 * Granting / Taking from people, not every SA can use it<br/>
- - For being as advanced as can be, this tool is more then certain that it can crash your server if not used right, this is why I have granting.
+  * For being as advanced as can be, this tool is more then certain that it can crash your server if not used right, this is why I have granting.
 * There is preferences now!
- - You can use prefs via Blockland glass or RTB.
+  * You can use prefs via Blockland glass or RTB.
 
 ___
 
