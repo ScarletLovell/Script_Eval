@@ -1,14 +1,7 @@
 // ZapScript stuff
-function ZScript__AppendQuery(%line, %evalPass) {
+function ZScript__AppendQuery(%line) {
     %words = getWordCount(%line) + 1;
     %line = trim(%line);
-    for(%i=0;%i < getRecordCount(%line);%i++) {
-        %L = getRecord(%line, %i);
-        if(%L !$= "") {
-            if(eval("return isFunction(ZScriptFunction_"@%L@");"))
-                return eval("return ZScriptFunction_"@%L@"();");
-        }
-    }
 	%line = trim(%line);
 	%strings = 0;
 	if((%v0=strPos(%line, "fcbn")) != -1) {
@@ -28,14 +21,24 @@ function ZScript__AppendQuery(%line, %evalPass) {
 			return $__ZS_[%v] = expandEscape(getSubStr(%line, %v1+1, (%v2-1)-%v1));
 		} else { return "ERR: Undefined variable name"; }
 	}
+    for(%i=0;%i < getRecordCount(%line);%i++) {
+        %L = getRecord(%line, %i);
+        if(%L !$= "") {
+            if(eval("return isFunction(ZScriptFunction_"@%L@");")) {
+                %result = eval("return ZScriptFunction_"@%L@"(\"" @ "\");");
+            }
+        }
+    }
 	if(%evalPass)
 		return %line;
 	return -1;
 }
 function ZScriptFunction_packageList() {
-    echo(getNumActivePackages() @ " active packages");
-	echo("-------------------------");
+    %lines = "";
+    %lines = %lines NL (getNumActivePackages() @ " active packages");
+	%lines = %lines NL ("-------------------------");
     for(%i=0;%i < getNumActivePackages();%i++)
-        echo(%i@": "@ getActivePackage(%i));
-	echo("-------------------------");
+        %lines = %lines NL (%i@": "@ getActivePackage(%i));
+	%lines = %lines NL ("-------------------------");
+    return %lines;
 }

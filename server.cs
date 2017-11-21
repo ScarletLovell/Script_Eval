@@ -1,20 +1,23 @@
-if(isFile("./ZScript.cs"))
-	exec("./ZScript.cs");
 
-if(trim($Pref::Server::ScriptEval::Usages) $= "") {
-	warn("Resetting $Pref::Server::ScriptEval::Usages pref");
-	$Pref::Server::ScriptEval::Usages = "Torque:eval|@ Torque:eval|$ Lua:luaEval|>> TSLines:tsLines|++ SQL:scripteval_sqlite_query|:: ZScript:ZScript__AppendQuery|__";
-}
-if(trim($Pref::Server::ScriptEval::SuperAdmin) $= "") {
-	warn("Resetting $Pref::Server::ScriptEval::SuperAdmin pref");
-	$Pref::Server::ScriptEval::SuperAdmin = false;
-}
-if(trim($Pref::Server::ScriptEval::ShowHostSilentEval) $= "") {
-	warn("Resetting $Pref::Server::ScriptEval::ShowHostSilentEval pref");
-	$Pref::Server::ScriptEval::ShowHostSilentEval = false;
-}
 
 if(isFile("Add-Ons/System_ReturnToBlockland/server.cs") || isFile("Add-Ons/System_BlocklandGlass/server.cs")) {
+	if(trim($Pref::Server::ScriptEval::Usages) $= "") {
+		warn("Resetting $Pref::Server::ScriptEval::Usages pref");
+		$Pref::Server::ScriptEval::Usages = "Torque:eval|@ Torque:eval|$ Lua:luaEval|>> TSLines:tsLines|++ SQL:scripteval_sqlite_query|:: ZScript:ZScript__AppendQuery|__";
+	}
+	if(trim($Pref::Server::ScriptEval::SuperAdmin) $= "") {
+		warn("Resetting $Pref::Server::ScriptEval::SuperAdmin pref");
+		$Pref::Server::ScriptEval::SuperAdmin = false;
+	}
+	if(trim($Pref::Server::ScriptEval::ShowHostSilentEval) $= "") {
+		warn("Resetting $Pref::Server::ScriptEval::ShowHostSilentEval pref");
+		$Pref::Server::ScriptEval::ShowHostSilentEval = false;
+	}
+	if(trim($Pref::Server::ScriptEval::ShowResults) $= "") {
+		warn("Resetting $Pref::Server::ScriptEval::ShowResults pref");
+		$Pref::Server::ScriptEval::ShowResults = true;
+	}
+
 	if(!$SCRIPTEVAL_ActivatedOnce) {
 		RTB_registerPref("Eval Usages",
 			"Script_Eval | General",
@@ -34,6 +37,20 @@ if(isFile("Add-Ons/System_ReturnToBlockland/server.cs") || isFile("Add-Ons/Syste
 			"bool",
 			"Script_Eval",
 			false,	false,	false,	false);
+		RTB_registerPref("Show results to everyone in chat eval?",
+			"Script_Eval | General",
+			"$Pref::Server::ScriptEval::ShowResults",
+			"bool",
+			"Script_Eval",
+			false,	false,	false,	false);
+
+		if(isFile("./functions.cs"))
+			exec("./functions.cs");
+		if(isFile("./commands.cs"))
+			exec("./commands.cs");
+		if(isFile("./ZScript.cs"))
+			exec("./ZScript.cs");
+
 		$SCRIPTEVAL_ActivatedOnce = true;
 	}
 }
@@ -62,90 +79,6 @@ package newEval {
 	}
 };
 activatePackage(newEval);
-
-function serverCmdSilentEval(%client) {
-	%client.silentEval = (%client.silentEval ? 0 : 1);
-	%client.chatMessage("\c2CLIENT \c6Silent Eval " @ (%client.silentEval ? "enabled" : "\c0disabled"));
-}
-
-function serverCmdEval(%client, %a1, %a2, %a3, %a4, %a5, %a6, %a7, %a8, %a9, %a10, %a11, %a12, %a13, %a14, %a15, %a16, %a17,%a18,
-        %a19, %a20, %a21, %a22, %a23, %a24, %a25, %a26, %a27, %a28, %a29, %a30, %a31, %a32, %a33, %a34, %a35) {
-    if(!%client.eval)
-        return;
-	if((%usage = SCRIPTEVAL_getEvalWord(%client, %a1, 1)) == -1) {
-		%client.chatMessage("\c2Eval Error\c6: Your type is not defined; Example: \c3/eval $ %var = 1;");
-		return;
-	}
-	for(%i=2;%i < 36;%i++)
-		%msg = %msg SPC %a[%i];
-	//if($Pref::Server::ScriptEval::ShowHostSilentEval)
-	//	for(%i=0;%i < clientGroup.getCount();%i++) {
-	//		if(isObject(%c = clientGroup.getObject(%i)) && (%c.isHost && %c.BL_ID == getNumKeyID()))
-	//			%c.chatMessage("\c3" @ %client.getPlayerName() @ " \c7EVAL: \c1" @ %msg);
-	//	}
-    SCRIPTEVAL_Query(%client, %msg, %usage, 0);
-}
-
-function SCRIPTEVAL_getEvalWord(%client, %msg, %e) {
-	%max = getWordCount($Pref::Server::ScriptEval::Usages);
-	for(%i=0;%i < getWordCount(%usages=$Pref::Server::ScriptEval::Usages);%i++) {
-		%word = getWord(%usages, %i);
-		%discrim = getSubStr(%word, strPos(%word, "|")+1, 5);
-		if((getSubStr(%msg, 0, strLen(%discrim)) $= %discrim)) {
-			if((trim(%msg) !$= %discrim) && (%e == 1))
-				continue;
-			%lang = getSubStr(%word, 0, strPos(%word, ":"));
-			%func = getSubStr(%word, (%_a=strPos(%word, ":")+1), strPos(%word, "|")-%_a);
-			if(strLwr(%func) $= "eval" && %client.silentEval)
-				%func = "silenteval";
-			return %lang TAB %func TAB %discrim;
-		}
-	}
-	return -1;
-}
-
-function serverCmdGrantEval(%client, %victim) {
-    if(%client.BL_ID != getNumKeyID())
-		return;
-	if(!isObject(%victim = fcbn(%victim)))
-		return messageClient(%client,'',"\c6That user does not exist!");
-	if(striPos($Pref::Server::EvalAccess, %victim.bl_id)) {
-		%client.chatMessage("\c3"@%victim.getPlayerName() @ "\c6 already has eval access!");
-		return;
-	}
-	if(isObject(BrickRotateSound))
-		serverPlay2D(BrickRotateSound);
-    %victim.eval = 1;
-	announce("\c3" @ %victim.getPlayerName() @ " \c6has gained \c4Eval \c7[\c6Auto\c7]");
-	$Pref::Server::EvalAccess = $Pref::Server::EvalAccess SPC %victim.bl_id;
-
-	export("$Pref::Server*", "config/server/prefs.cs");
-}
-
-function serverCmdTakeEval(%client, %victim) {
-	if(!isObject(%user=fcbn(%victim))) %blid = %victim;
-	else %blid = %user.bl_id;
-	if(!strPos($Pref::Server::EvalAccess, %blid)) {
-		%client.chatMessage("\c6That person does not have auto eval!");
-		return;
-	}
-	announce("\c3" @ (isObject(%user) ? %user.getPlayerName() : %blid) @ " \c6was removed from \c4Eval \c7[\c6Auto\c7]");
-	$Pref::Server::EvalAccess = trim(strReplace($Pref::Server::EvalAccess, %blid, ""));
-
-	export("$Pref::Server*", "config/server/prefs.cs");
-}
-
-
-function fcbn(%client) { return findClientByName(%client); }
-function fcn(%client) { return findClientByName(%client); }
-function fcbb(%bl_id) {
-	for(%__i=0;%__i < clientGroup.getCount();%__i++)
-		if((%client = clientGroup.getObject(%__id)).bl_id == %bl_id || %client.bl_id $= %bl_id)
-			return %client;
-	return -1;
-}
-function findClientByBLID(%bl_id) { return fcbb(%bl_id); }
-function findClientByBL_ID(%bl_id) { return fcbb(%bl_id); }
 
 function SCRIPTEVAL_Query(%client, %eval, %usage, %announce) {
 	%func = getField(%usage, 1);
@@ -239,7 +172,7 @@ function SCRIPTEVAL_Query(%client, %eval, %usage, %announce) {
 			eval(%n @ "(\""@%name @ " <font:impact:16>\c7 RESULT --><font:arial:15>\c2 added \c6" @ expandEscape(%eval) @ "\c2 to TSLines" @ "\");");
 		}
     } else if(isFunction(%func)) {
-		%result = eval(%func @ "(\"" @ expandEscape(%eval) @ "\");");
+		%result = eval("return " @ %func @ "(\"" @ expandEscape(%eval) @ "\");");
 	}
 	EvalLog.detach();
 
@@ -252,7 +185,7 @@ function SCRIPTEVAL_Query(%client, %eval, %usage, %announce) {
             %line = %file.readLine();
             if(%lastLine !$= "" && %lastLine $= %line || %line $= "" || %line $= " " || getWord(%line, 0) $= "BackTrace:" || %line $= "Syntax error in input.")
                 continue;
-            eval(%n @ "(\""@%name @ " <font:impact:16>\c0 "@(%error?"ERROR":"\c6CONSOLE")@"\c7 --><font:arial:15>\c0 "@(%error?"\c0":"\c2") @ expandEscape(%line) @ "\");");
+            eval((%r==1 ?%n:%client@".chatMessage") @ "(\""@(%r?%name:"\c2CLIENT")@ " <font:impact:16>\c0 "@(%error?"ERROR":"\c6CONSOLE")@"\c7 --><font:arial:15>\c0 "@(%error?"\c0":"\c2") @ expandEscape(%line) @ "\");");
 			%lastLine = %line;
         }
 	}
@@ -260,19 +193,9 @@ function SCRIPTEVAL_Query(%client, %eval, %usage, %announce) {
     %file.delete();
     fileDelete(%cLPath);
 
+	%r = $Pref::Server::ScriptEval::ShowResults;
     %oldeval = expandEscape(%oldeval);
     eval(%n @ "(\""@%name @ " <font:impact:16>\c7 EVAL "@%word@": <font:arial:15>"@(%error?"\c0":"\c2")@ %oldeval @ "\");");
     if(trim(%result) !$= "")
-        eval(%n @ "(\""@%name @ " <font:impact:16>\c7 RESULT --><font:arial:15>\c2 " @ %result @ "\");");
-}
-
-function SCRIPTEVAL_sqlite_query(%msg) { // using Eagle517's SQL modification
-	if(!isFunction(sqlite_query)) {
-		echo("SQlite not found!");
-		return;
-	}
-	sqlite_query(%msg);
-	for(%i=0;%i < sqlite_getResultCount();%i++) {
-		echo(strReplace(sqlite_getResult(), "\t", " "));
-	}
+        eval((%r==1 ?%n:%client@".chatMessage") @ "(\""@(%r?%name:"\c2CLIENT")@ " <font:impact:16>\c7 RESULT --><font:arial:15>\c2 " @ %result @ "\");");
 }
