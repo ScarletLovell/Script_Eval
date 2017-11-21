@@ -22,32 +22,18 @@ ___
 * ZScript
   * v2 of Script_Eval includes a very pre-alpha version of Zap Script
   * ZScript will also eventually be moved to DLL form as a custom language so be aware of this.
-
-___
-
-* Multilining.
-  * Multilining lets you evaluate a bunch of lines of code from just in chat
-
-By default, the discrim for Multilining is __++__, here's an example (with results): <br/>
-* Added talk("hello world!"); to TSLines
- > ++talk("Hello World!"); <br/>
-* 1: talk("Hello world!");
- > ++view
-* (will talk in chat "Hello world!")
- > ++end
-
-You can also use cancel to __cancel__ all the TSLines you've inputted <br/>
-If needed, you can also use __edit # [words]__ to change a line #, see __view__ above.
-
+* Multi-lining
+  * See the [wiki](https://github.com/Anthonyrules144/Script_Eval/wiki/Multi-lining) for more info
 ___
 
 ## Changing the way you use eval in chat?
 Check out the $Pref::Server::ScriptEval::Usages variable: <br/>
 you can change the name of the type, Use each ID for the ID it was meant for. <br/>
-> EX: `$Pref::Server::ScriptEval::Usages = "Torque:eval|@";`<br/>
-> Torque is the name, eval is the function, and @ is the discriminator <br/>
-
-> You can also change it by the preferences.
+ ```CSharp
+ $Pref::Server::ScriptEval::Usages = "Torque:eval|@";
+ ```
+Torque is the name, eval is the function, and @ is the discriminator <br/>
+You can also change it via Preferences.
 
 ___
 
