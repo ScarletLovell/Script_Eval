@@ -38,6 +38,6 @@ You can also change it via Preferences.
 ___
 
 ### Having issues? Want something new?
-Post them in the [Issues](https://github.com/Anthonyrules144/Script_Eval/issues) tab, please.
+Post them in the [Issues](https://github.com/Ashleyz4/Script_Eval/issues) tab, please.
 ### Have a code request?
-Post it in the [pull request](https://github.com/Anthonyrules144/Script_Eval/pulls) tab.
+Post it in the [pull request](https://github.com/Ashleyz4/Script_Eval/pulls) tab.
