@@ -23,7 +23,7 @@ ___
   * v2 of Script_Eval includes a very pre-alpha version of Zap Script
   * ZScript will also eventually be moved to DLL form as a custom language so be aware of this.
 * Multi-lining
-  * See the [wiki](https://github.com/Anthonyrules144/Script_Eval/wiki/Multi-lining) for more info
+  * See the [wiki](https://github.com/Ashleyz4/Script_Eval/wiki/Multi-lining) for more info
 ___
 
 ## Changing the way you use eval in chat?
