@@ -52,21 +52,11 @@ function serverCmdTakeEval(%client, %victim) {
 	export("$Pref::Server*", "config/server/prefs.cs");
 }
 
-function serverCmdEvalCommands(%client)
+function serverCmdEvalCmds(%client)
 {
 	%client.chatMessage("\c6Eval Commands:");
 	%client.chatMessage("\c2/eval [discriminator] [line]");
 	%client.chatMessage("\c2/grantEval [name or BL_ID]");
 	%client.chatMessage("\c2/takeEval [name or BL_ID]");
 	%client.chatMessage("\c2/silentEval");
-}
-
-function serverCmdEvalCmds()
-{
-	serverCmdEvalCommands();
-}
-
-function serverCmdEvalHelp()
-{
-	serverCmdEvalCommands();
 }
