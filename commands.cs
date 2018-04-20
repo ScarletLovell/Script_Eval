@@ -54,8 +54,11 @@ function serverCmdTakeEval(%client, %victim) {
 
 function serverCmdEvalCommands(%client)
 {
-	%client.chatMessage("\c6Eval Help:");
-	%client.chatMessage("\c2:");
+	%client.chatMessage("\c6Eval Commands:");
+	%client.chatMessage("\c2/eval [discriminator] [line]");
+	%client.chatMessage("\c2/grantEval [name or BL_ID]");
+	%client.chatMessage("\c2/takeEval [name or BL_ID]");
+	%client.chatMessage("\c2/silentEval");
 }
 
 function serverCmdEvalCmds()
