@@ -51,3 +51,9 @@ function serverCmdTakeEval(%client, %victim) {
 
 	export("$Pref::Server*", "config/server/prefs.cs");
 }
+
+function serverCmdEvalHelp(%client)
+{
+	%client.chatMessage("\c6Eval Help:");
+	%client.chatMessage("\c2:");
+}
