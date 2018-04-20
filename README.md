@@ -6,6 +6,7 @@ ___Eval at it's finest___
 * /grantEval [name or BL_ID]
 * /takeEval [name or BL_ID]
 * /silentEval
+* /EvalCmds  /EvalCommands  /EvalHelp
 ___
 
 ## Things that are probably useful in my script_eval add-on.
