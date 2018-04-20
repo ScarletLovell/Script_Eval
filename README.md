@@ -1,12 +1,13 @@
 # Script_Eval
 ___Eval at it's finest___
+Originally created by Anthonyrules144
 
 ## Commands
 * /eval [discriminator] [line]
 * /grantEval [name or BL_ID]
 * /takeEval [name or BL_ID]
 * /silentEval
-* /EvalCmds
+* /EvalCmds (Added in by Tanner Ghosen)
 ___
 
 ## Things that are probably useful in my script_eval add-on.
